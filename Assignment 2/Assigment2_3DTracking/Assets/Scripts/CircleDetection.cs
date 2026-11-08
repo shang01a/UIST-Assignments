@@ -4,11 +4,10 @@ using UnityEngine;
 public class CircleDetection : MonoBehaviour
 {
     private WebCamTexture webcamTexture;
-    public GameObject redSphere; // Reference to your red sphere object
+    public GameObject redSphere;
 
     private Color32[] pixels;
 
-    // Values can be adjusted in the Inspector depending on lighting.
     [Header("Red Circle Detection")]
     [Range(0, 255)]
     public int redThreshold = 120;
@@ -18,7 +17,19 @@ public class CircleDetection : MonoBehaviour
 
     public int minimumRedPixels = 50;
 
-    // Detection results for the other scripts.
+    // Depth estimation settings
+    [Header("Depth Estimation")]
+    public float referenceRedPixels = 2500f;
+
+    // Sphere movement settings
+    [Header("Sphere Movement")]
+    public float movementScale = 3f;
+    public float depthScale = 2f;
+    public bool mirrorX = false;
+
+    private Vector3 initialSpherePosition;
+
+    // Detection results
     public bool HasTarget { get; private set; }
     public float CenterXPixel { get; private set; }
     public float CenterYPixel { get; private set; }
@@ -26,40 +37,49 @@ public class CircleDetection : MonoBehaviour
     public int FrameWidth { get; private set; }
     public int FrameHeight { get; private set; }
 
+    public float NormalizedX { get; private set; }
+    public float NormalizedY { get; private set; }
 
-    // Start is called before the first frame update
+    // Estimated relative depth
+    public float EstimatedZ { get; private set; }
+
     void Start()
     {
         webcamTexture = new WebCamTexture();
-        GetComponent<Renderer>().material.mainTexture = webcamTexture;
+
+        GetComponent<Renderer>().material.mainTexture =
+            webcamTexture;
+
         webcamTexture.Play();
+
+        // Remember the sphere's starting position
+        if (redSphere != null)
+        {
+            initialSpherePosition = redSphere.transform.position;
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (webcamTexture.didUpdateThisFrame)
         {
-            // Capture the webcam texture
             int width = webcamTexture.width;
             int height = webcamTexture.height;
 
-            // The webcam can take a moment to return a valid image size.
             if (width <= 16 || height <= 16)
                 return;
 
             FrameWidth = width;
             FrameHeight = height;
 
-            // Reuse the pixel array instead of creating a new texture each frame.
-            if (pixels == null || pixels.Length != width * height)
+            if (pixels == null ||
+                pixels.Length != width * height)
             {
                 pixels = new Color32[width * height];
             }
 
             webcamTexture.GetPixels32(pixels);
 
-            // Perform image processing on the captured frame
             DetectRedCircle();
         }
     }
@@ -73,9 +93,7 @@ public class CircleDetection : MonoBehaviour
         long sumX = 0;
         long sumY = 0;
 
-        //TODO: Implement tracking of a red circle -> implemented
-
-        // Check each pixel to see if it is mainly red.
+        // Detect red pixels
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -99,45 +117,83 @@ public class CircleDetection : MonoBehaviour
 
         RedPixelCount = redCount;
 
-        // Ignore small red areas that are likely caused by noise.
         HasTarget = redCount >= minimumRedPixels;
 
         if (HasTarget)
         {
-            // The centroid is the average position of all detected red pixels.
+            // Calculate centroid
             CenterXPixel = (float)sumX / redCount;
             CenterYPixel = (float)sumY / redCount;
+
+            // Normalize X and Y coordinates
+            NormalizedX =
+                (CenterXPixel / FrameWidth) * 2f - 1f;
+
+            NormalizedY =
+                (CenterYPixel / FrameHeight) * 2f - 1f;
+
+            // Estimate Z using apparent target size
+            EstimatedZ = Mathf.Sqrt(
+                referenceRedPixels / RedPixelCount
+            );
+
+            // Move the virtual sphere
+            MoveSphere();
         }
         else
         {
             CenterXPixel = 0f;
             CenterYPixel = 0f;
+
+            NormalizedX = 0f;
+            NormalizedY = 0f;
+
+            // Keep last sphere position when target is lost
         }
 
-
-        // TODO: Move the tracking object (e.g., sphere) to the detected circle's center
-
-        // Part 2 will use the centroid and pixel count to calculate
-        // the 3D coordinates and move the sphere
-
-
-        // Print detection results occasionally while testing.
-        // The Debug HUD will later display these values on screen
+        // Print detection results
         if (Time.frameCount % 30 == 0)
         {
             Debug.Log(
                 "Detected: " + HasTarget +
-                " | X: " + CenterXPixel +
-                " | Y: " + CenterYPixel +
-                " | Red pixels: " + RedPixelCount
+                " | X: " + NormalizedX +
+                " | Y: " + NormalizedY +
+                " | Z: " + EstimatedZ +
+                " | Red Pixels: " + RedPixelCount
             );
         }
     }
 
+    // Map tracking coordinates to Unity space
+    void MoveSphere()
+    {
+        if (redSphere == null)
+            return;
+
+        float x = NormalizedX * movementScale;
+        float y = NormalizedY * movementScale;
+
+        if (mirrorX)
+        {
+            x = -x;
+        }
+
+        // Z increases as the marker moves further away
+        float z = (EstimatedZ - 1f) * depthScale;
+
+        Vector3 targetPosition = new Vector3(
+            initialSpherePosition.x + x,
+            initialSpherePosition.y + y,
+            initialSpherePosition.z + z
+        );
+
+        redSphere.transform.position = targetPosition;
+    }
+
     void OnDestroy()
     {
-        // Stop the webcam when the object is removed.
-        if (webcamTexture != null && webcamTexture.isPlaying)
+        if (webcamTexture != null &&
+            webcamTexture.isPlaying)
         {
             webcamTexture.Stop();
         }
