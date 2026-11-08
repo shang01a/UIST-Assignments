@@ -29,6 +29,10 @@ public class CircleDetection : MonoBehaviour
 
     private Vector3 initialSpherePosition;
 
+    // Smoothing settings
+    public float smoothingTime = 0.12f;
+    private Vector3 smoothingVelocity = Vector3.zero;
+
     // Detection results
     public bool HasTarget { get; private set; }
     public float CenterXPixel { get; private set; }
@@ -82,6 +86,8 @@ public class CircleDetection : MonoBehaviour
 
             DetectRedCircle();
         }
+        // Update sphere movement every frame
+        MoveSphere();
     }
 
     void DetectRedCircle()
@@ -137,8 +143,6 @@ public class CircleDetection : MonoBehaviour
                 referenceRedPixels / RedPixelCount
             );
 
-            // Move the virtual sphere
-            MoveSphere();
         }
         else
         {
@@ -167,7 +171,7 @@ public class CircleDetection : MonoBehaviour
     // Map tracking coordinates to Unity space
     void MoveSphere()
     {
-        if (redSphere == null)
+        if (redSphere == null || !HasTarget)
             return;
 
         float x = NormalizedX * movementScale;
@@ -187,7 +191,24 @@ public class CircleDetection : MonoBehaviour
             initialSpherePosition.z + z
         );
 
-        redSphere.transform.position = targetPosition;
+        // Smooth the sphere movement
+        redSphere.transform.position = Vector3.SmoothDamp(
+            redSphere.transform.position,
+            targetPosition,
+            ref smoothingVelocity,
+            smoothingTime);
+    }
+
+    // Display tracking coordinates and red pixel count
+    private void OnGUI()
+    {
+        GUI.Box(
+            new Rect(10, Screen.height - 110, 220, 100),
+            "X: " + NormalizedX.ToString("F2") + "\n" +
+            "Y: " + NormalizedY.ToString("F2") + "\n" +
+            "Z: " + EstimatedZ.ToString("F2") + "\n" +
+            "Red pixels: " + RedPixelCount
+            );
     }
 
     void OnDestroy()
