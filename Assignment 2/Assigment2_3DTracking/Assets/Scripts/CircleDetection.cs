@@ -209,6 +209,30 @@ public class CircleDetection : MonoBehaviour
             "Z: " + EstimatedZ.ToString("F2") + "\n" +
             "Red pixels: " + RedPixelCount
             );
+
+        // Draw a cross at the detected centre
+        if (HasTarget && Camera.main != null) 
+        {
+            Vector3 localCenter = new Vector3(
+                CenterXPixel / FrameWidth - 0.5f,
+                CenterYPixel / FrameHeight - 0.5f,
+                0f
+                );
+            Vector3 worldCenter = transform.TransformPoint(localCenter);
+            Vector3 screenCenter = Camera.main.WorldToScreenPoint(worldCenter);
+
+            float x = screenCenter.x;
+            float y = Screen.height - screenCenter.y;
+
+            GUI.color = Color.green;
+            GUI.DrawTexture(
+                new Rect(x - 8, y - 1, 16, 2),
+                Texture2D.whiteTexture);
+
+            GUI.DrawTexture(
+                new Rect(x - 1, y - 8, 2, 16),
+                Texture2D.whiteTexture);
+        }
     }
 
     void OnDestroy()
