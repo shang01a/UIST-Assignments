@@ -47,13 +47,13 @@ and the red pixel count. A green cross shows the detected centre of the marker.
 Select Quad in the Hierarchy. Find these settings in the
 Circle Detection component in the Inspector.
 
-| Parameter | Default |
+| Parameter | Value |
 | --- | --- |
 | redThreshold | 120 |
 | redDominance | 1.5 |
 | minimumRedPixels | 50 |
 | referenceRedPixels | 2500 |
-| movementScale | 3 |
+| movementScale | 1.5 |
 | depthScale | 2 |
 | mirrorX | false |
 | smoothingTime | 0.2 |
