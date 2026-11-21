@@ -45,28 +45,25 @@ Shader "Custom/Anaglyph3D"
                 return o;
             }
             
-            fixed4 frag (v2f i) : SV_Target
-            {
-                /* Info
-                 * This shader has two textures (_LeftEyeTex and _RightEyeTex).
-                 * The AnaglyphManager.cs assigns the cameras' images to these textures.
-                 * In this fragment shader, for each fragment, we can sample these textures to create a new outputColor
-                 *  that combines the colors from both textures.
-                 * 
-                 * ToDo
-                 *
-                 * - For each eye:
-                 *   - Get the color from the eye's texture at the position of i. The 
-                 *                   
-                 * - Fill the outputColor's color channels with the textures' color values
-                 */
-                
-                float4 outputColor;
-                outputColor.a = 1;
+            
+        fixed4 frag (v2f i) : SV_Target
+        {
+            // Sample the image rendered by each eye.
+            fixed4 leftColor = tex2D(_LeftEyeTex, i.uv);
+            fixed4 rightColor = tex2D(_RightEyeTex, i.uv);
 
-                return outputColor;
+            // Left eye is viewed through the red lens.
+            // Right eye is viewed through the cyan lens.
+            fixed4 outputColor;
 
-            }
+            outputColor.r = leftColor.r;
+            outputColor.g = rightColor.g;
+            outputColor.b = rightColor.b;
+            outputColor.a = 1.0;
+
+            return outputColor;
+        }
+
             ENDCG
         }
     }
