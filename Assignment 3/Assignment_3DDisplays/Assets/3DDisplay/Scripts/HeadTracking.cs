@@ -65,7 +65,7 @@ public class HeadTracking : MonoBehaviour
 
         webcamTexture.Play();
 
-        initialRigPosition = stereoCameraRig.position;
+        initialRigPosition = stereoCameraRig.localPosition;
         targetPosition = initialRigPosition;
     }
 
@@ -95,12 +95,12 @@ public class HeadTracking : MonoBehaviour
 
         if (calibrated)
         {
-            stereoCameraRig.position = Vector3.SmoothDamp(
-                stereoCameraRig.position,
-                targetPosition,
-                ref smoothingVelocity,
-                smoothingTime
-            );
+            stereoCameraRig.localPosition = Vector3.SmoothDamp(
+            stereoCameraRig.localPosition,
+            targetPosition,
+            ref smoothingVelocity,
+            smoothingTime
+        );
         }
     }
 
@@ -191,7 +191,7 @@ public class HeadTracking : MonoBehaviour
         {
             referenceCenter = new Vector2(normalizedX, normalizedY);
             referenceRedPixels = estimatedCount;
-            initialRigPosition = stereoCameraRig.position;
+            initialRigPosition = stereoCameraRig.localPosition;
             targetPosition = initialRigPosition;
             smoothingVelocity = Vector3.zero;
             smoothedDepth = 0f;
