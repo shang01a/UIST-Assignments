@@ -1,40 +1,66 @@
+
 using UnityEngine;
 
 public class CoinPickup : MonoBehaviour
 {
-    public Camera leftEyeCamera;
-    public Camera rightEyeCamera;
+    public Camera interactionCamera;
     public AudioClip pickupSound;
+
+    [Header("Pickup Settings")]
+    public float pickupDistance = 10f;
+    public LayerMask pickupLayers = ~0;
 
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (leftEyeCamera == null || rightEyeCamera == null)
+            if (interactionCamera == null)
+            {
+                Debug.LogWarning(
+                    "CoinPickup: InteractionCamera is missing!"
+                );
                 return;
+            }
 
-            // Midpoint between the two eye cameras
-            Vector3 midpoint = (
-                leftEyeCamera.transform.position +
-                rightEyeCamera.transform.position
-            ) * 0.5f;
-
-            // Use the left camera's projection to get
+            // Use the interaction camera to get
             // the mouse ray direction
-            Ray mouseRay = leftEyeCamera.ScreenPointToRay(
+            Ray ray = interactionCamera.ScreenPointToRay(
                 Input.mousePosition
             );
 
-            // Shift the ray origin to the midpoint
-            // This keeps our click detection between both eyes
-            Ray ray = new Ray(midpoint, mouseRay.direction);
+            // Visualize the ray in the Scene View
+            Debug.DrawRay(
+                ray.origin,
+                ray.direction * pickupDistance,
+                Color.green,
+                1f
+            );
 
-            if (Physics.Raycast(ray, out RaycastHit hit, 10f))
+            if (Physics.Raycast(
+                ray,
+                out RaycastHit hit,
+                pickupDistance,
+                pickupLayers,
+                QueryTriggerInteraction.Collide
+            ))
             {
+                // Show which object was hit
+                Debug.Log(
+                    "Raycast hit: " + hit.collider.name +
+                    " | Layer: " +
+                    LayerMask.LayerToName(hit.collider.gameObject.layer) +
+                    " | Distance: " + hit.distance +
+                    " | Mask: " + pickupLayers.value
+                );
+
                 // Check if we clicked this coin or one of its children.
                 if (hit.collider.transform == transform ||
                     hit.collider.transform.IsChildOf(transform))
                 {
+                    Debug.Log(
+                        "Coin picked up: " + gameObject.name
+                    );
+
                     if (pickupSound != null)
                     {
                         AudioSource.PlayClipAtPoint(
@@ -45,6 +71,13 @@ public class CoinPickup : MonoBehaviour
 
                     Destroy(gameObject);
                 }
+            }
+            else
+            {
+                Debug.Log(
+                    "Raycast hit nothing" +
+                    " | Mask: " + pickupLayers.value
+                );
             }
         }
     }

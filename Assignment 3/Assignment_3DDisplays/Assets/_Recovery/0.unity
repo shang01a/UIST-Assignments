@@ -1972,7 +1972,6 @@ GameObject:
   m_Component:
   - component: {fileID: 481356519}
   - component: {fileID: 481356518}
-  - component: {fileID: 481356517}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1980,18 +1979,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &481356517
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 481356516}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
 --- !u!108 &481356518
 Light:
   m_ObjectHideFlags: 0
@@ -3699,7 +3686,6 @@ GameObject:
   - component: {fileID: 710558521}
   - component: {fileID: 710558520}
   - component: {fileID: 710558519}
-  - component: {fileID: 710558518}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -3707,18 +3693,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &710558518
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 710558517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
 --- !u!81 &710558519
 AudioListener:
   m_ObjectHideFlags: 0
@@ -4950,7 +4924,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 1.0225323, y: 0.79372007, z: 0.66253227}
   m_Center: {x: 0.0000009536743, y: 0.39686003, z: 0.0000009536743}
@@ -5962,9 +5936,9 @@ MonoBehaviour:
   minimumRedPixels: 150
   pixelStep: 2
   useRoi: 1
-  horizontalScale: 4
+  horizontalScale: 3
   verticalScale: 2
-  depthScale: 2.5
+  depthScale: 1.5
   mirrorX: 1
   depthSmoothing: 0.15
   smoothingTime: 0.12
@@ -6485,6 +6459,18 @@ PrefabInstance:
     - target: {fileID: 6544169183487238532, guid: 5ffacfcacfdce4e48beffd6f659becf2, type: 3}
       propertyPath: m_Size.x
       value: 6.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 6544169183487238532, guid: 5ffacfcacfdce4e48beffd6f659becf2, type: 3}
+      propertyPath: m_Size.z
+      value: 1.6140924
+      objectReference: {fileID: 0}
+    - target: {fileID: 6544169183487238532, guid: 5ffacfcacfdce4e48beffd6f659becf2, type: 3}
+      propertyPath: m_Center.x
+      value: -0.0000009551379
+      objectReference: {fileID: 0}
+    - target: {fileID: 6544169183487238532, guid: 5ffacfcacfdce4e48beffd6f659becf2, type: 3}
+      propertyPath: m_Center.z
+      value: -0.107045084
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8857,7 +8843,7 @@ Transform:
   m_GameObject: {fileID: 1805290426}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.25940603, z: -0, w: 0.96576834}
-  m_LocalPosition: {x: 1.61, y: 1.4, z: -17.58}
+  m_LocalPosition: {x: 2.02, y: 1.4, z: -18.29}
   m_LocalScale: {x: 1, y: 0.80488366, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

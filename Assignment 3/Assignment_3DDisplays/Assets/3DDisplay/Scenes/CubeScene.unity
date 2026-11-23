@@ -721,7 +721,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1245422590}
   - component: {fileID: 1245422591}
-  - component: {fileID: 1245422589}
   m_Layer: 0
   m_Name: WebcamTracker
   m_TagString: Untagged
@@ -729,44 +728,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1245422589
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1245422588}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a53cb1b5d83c344d3ab67c28f5fe7d0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CircleDetection
-  stereoCameraRig: {fileID: 161340336}
-  webcamDeviceIndex: 0
-  requestedWidth: 640
-  requestedHeight: 480
-  requestedFps: 30
-  hueTolerance: 18
-  minSaturation: 0.35
-  minValue: 0.15
-  pixelStep: 2
-  minPixelCount: 150
-  useRoiRefinement: 1
-  roiScale: 1.8
-  mirrorX: 0
-  referenceDistance: 30
-  referenceRadiusPx: 0
-  calibrationFrames: 15
-  smoothing: 2
-  emaAlpha: 0.25
-  oneEuroMinCutoff: 1
-  oneEuroBeta: 1.5
-  depthCutoffScale: 0.5
-  movementRange: {x: 0.8, y: 0.8}
-  depthMovementRange: 1.5
-  showHud: 1
-  showReticle: 1
-  showMask: 0
 --- !u!4 &1245422590
 Transform:
   m_ObjectHideFlags: 0
@@ -1700,7 +1661,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 512980778772230237, guid: 17e73dba4b9136049bdc25c9a263db6d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.0315
+      value: -0.05
       objectReference: {fileID: 0}
     - target: {fileID: 512980778772230237, guid: 17e73dba4b9136049bdc25c9a263db6d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1724,7 +1685,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1715930549653333873, guid: 17e73dba4b9136049bdc25c9a263db6d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.0315
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 1715930549653333873, guid: 17e73dba4b9136049bdc25c9a263db6d, type: 3}
       propertyPath: m_LocalPosition.z

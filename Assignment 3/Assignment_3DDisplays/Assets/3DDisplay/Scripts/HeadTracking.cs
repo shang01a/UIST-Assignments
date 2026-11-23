@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class HeadTracking : MonoBehaviour
@@ -36,6 +37,12 @@ public class HeadTracking : MonoBehaviour
 
     [Header("Smoothing")]
     public float smoothingTime = 0.12f;
+
+    [Header("Movement Limits")]
+    public bool limitMovement = false;
+    public float maxHorizontalOffset = 0.2f;
+    public float maxVerticalOffset = 0.15f;
+    public float maxDepthOffset = 0.2f;
 
     private Vector3 initialRigPosition;
     private Vector3 targetPosition;
@@ -96,11 +103,11 @@ public class HeadTracking : MonoBehaviour
         if (calibrated)
         {
             stereoCameraRig.localPosition = Vector3.SmoothDamp(
-            stereoCameraRig.localPosition,
-            targetPosition,
-            ref smoothingVelocity,
-            smoothingTime
-        );
+                stereoCameraRig.localPosition,
+                targetPosition,
+                ref smoothingVelocity,
+                smoothingTime
+            );
         }
     }
 
@@ -191,7 +198,13 @@ public class HeadTracking : MonoBehaviour
         {
             referenceCenter = new Vector2(normalizedX, normalizedY);
             referenceRedPixels = estimatedCount;
-            initialRigPosition = stereoCameraRig.localPosition;
+
+            // Keep the original rig position when movement is limited.
+            if (!limitMovement)
+            {
+                initialRigPosition = stereoCameraRig.localPosition;
+            }
+
             targetPosition = initialRigPosition;
             smoothingVelocity = Vector3.zero;
             smoothedDepth = 0f;
@@ -201,7 +214,7 @@ public class HeadTracking : MonoBehaviour
         float relativeX = normalizedX - referenceCenter.x;
         float relativeY = normalizedY - referenceCenter.y;
 
-       // Estimate distance from the apparent size of the red lens.
+        // Estimate distance from the apparent size of the red lens.
         float relativeDepth = Mathf.Sqrt(
             referenceRedPixels / (float)estimatedCount
         );
@@ -212,6 +225,7 @@ public class HeadTracking : MonoBehaviour
 
         // Limit forward/backward movement.
         targetDepth = Mathf.Clamp(targetDepth, -1.5f, 1.5f);
+
         // Smooth fluctuations in the depth measurement.
         smoothedDepth = Mathf.Lerp(
             smoothedDepth,
@@ -221,11 +235,34 @@ public class HeadTracking : MonoBehaviour
 
         float z = smoothedDepth;
 
-        targetPosition = initialRigPosition + new Vector3(
+        Vector3 offset = new Vector3(
             relativeX * horizontalScale,
             relativeY * verticalScale,
             z
         );
+
+        if (limitMovement)
+        {
+            offset.x = Mathf.Clamp(
+                offset.x,
+                -maxHorizontalOffset,
+                maxHorizontalOffset
+            );
+
+            offset.y = Mathf.Clamp(
+                offset.y,
+                -maxVerticalOffset,
+                maxVerticalOffset
+            );
+
+            offset.z = Mathf.Clamp(
+                offset.z,
+                -maxDepthOffset,
+                maxDepthOffset
+            );
+        }
+
+        targetPosition = initialRigPosition + offset;
     }
 
     void OnGUI()
