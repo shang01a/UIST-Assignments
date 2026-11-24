@@ -3,6 +3,21 @@ using UnityEngine;
 
 public class CoinPickup : MonoBehaviour
 {
+    // Shared progress for coins
+    public static int CollectedCoins { get; private set; }
+    public static int TotalCoins { get; private set; }
+    private bool collected;
+    // Reset progress when the scene starts
+    public static void ResetProgress()
+    {
+        CollectedCoins = 0;
+        TotalCoins = 0;
+    }
+
+    void Start()
+    {
+        TotalCoins++;
+    }
     public Camera interactionCamera;
     public AudioClip pickupSound;
 
@@ -12,7 +27,7 @@ public class CoinPickup : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (!collected && Input.GetMouseButtonDown(0))
         {
             if (interactionCamera == null)
             {
@@ -69,6 +84,9 @@ public class CoinPickup : MonoBehaviour
                         );
                     }
 
+                    // Count this coin before removing it
+                    collected = true;
+                    CollectedCoins++;
                     Destroy(gameObject);
                 }
             }

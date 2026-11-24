@@ -60,6 +60,11 @@ public class HeadTracking : MonoBehaviour
     private int frameWidth;
     private int frameHeight;
 
+    // Reset coin counter
+    void Awake()
+    {
+        CoinPickup.ResetProgress();
+    }
     void Start()
     {
         webcamTexture = new WebCamTexture(640, 480, 30);
@@ -267,11 +272,34 @@ public class HeadTracking : MonoBehaviour
 
     void OnGUI()
     {
-        GUI.Box(
-            new Rect(10, 10, 220, 75),
+        // Tracking information in every scena
+        string panelText =
             "Tracking: " + hasTarget + "\n" +
             "Red pixels: " + lastRedCount + "\n" +
-            "Press C to calibrate"
+            "C - calibrate";
+
+        float panelHeight = 75f;
+
+        // Add game information only if there are coins
+        if (CoinPickup.TotalCoins > 0)
+        {
+            panelText +=
+                $"\n\nCoins: {CoinPickup.CollectedCoins}/{CoinPickup.TotalCoins}\n" +
+                "WASD - move\n" +
+                "Left click - collect";
+
+            panelHeight = 145f;
+
+            if (CoinPickup.CollectedCoins >= CoinPickup.TotalCoins)
+            {
+                panelText += "\n\nAll coins collected!";
+                panelHeight = 185f;
+            }
+        }
+
+        GUI.Box(
+            new Rect(10, 10, 280, panelHeight),
+            panelText
         );
     }
 
