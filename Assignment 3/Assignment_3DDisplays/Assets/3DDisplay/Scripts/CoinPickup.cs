@@ -7,6 +7,7 @@ public class CoinPickup : MonoBehaviour
     public static int CollectedCoins { get; private set; }
     public static int TotalCoins { get; private set; }
     private bool collected;
+    
     // Reset progress when the scene starts
     public static void ResetProgress()
     {

@@ -23,6 +23,13 @@ public class HeadTracking : MonoBehaviour
     public int pixelStep = 2;
     public bool useRoi = true;
 
+    // Enable diagnostic 
+    [Header("Detection Preview")]
+    public bool showDetectionPreview = false;
+
+    private Texture2D detectionMask;
+    private Color32[] maskPixels;
+
     [Header("Movement")]
     public float horizontalScale = 4f;
     public float verticalScale = 2f;
@@ -65,6 +72,7 @@ public class HeadTracking : MonoBehaviour
     {
         CoinPickup.ResetProgress();
     }
+
     void Start()
     {
         webcamTexture = new WebCamTexture(640, 480, 30);
@@ -102,6 +110,7 @@ public class HeadTracking : MonoBehaviour
 
                 webcamTexture.GetPixels32(pixels);
                 DetectRedLens();
+                UpdateDetectionMask();
             }
         }
 
@@ -270,8 +279,61 @@ public class HeadTracking : MonoBehaviour
         targetPosition = initialRigPosition + offset;
     }
 
+    // Vizualize red colour detection
+    void UpdateDetectionMask()
+    {
+        if (!showDetectionPreview)
+            return;
+
+        // Create mask when camera resolution changes
+        if (detectionMask == null ||
+            detectionMask.width != frameWidth ||
+            detectionMask.height != frameHeight)
+        {
+            if (detectionMask != null)
+                Destroy(detectionMask);
+
+            detectionMask = new Texture2D(
+                frameWidth, frameHeight,
+                TextureFormat.RGBA32, false
+            );
+
+            maskPixels = new Color32[pixels.Length];
+        }
+
+        // Accepted pixels are red others are black
+        for (int i = 0; i < pixels.Length; i++)
+        {
+            maskPixels[i] = IsRed(pixels[i])
+                ? new Color32(255, 0, 0, 255)
+                : new Color32(0, 0, 0, 255);
+        }
+
+        detectionMask.SetPixels32(maskPixels);
+        detectionMask.Apply(false);
+    }
+    
+    // Show only mask in diagnostic mode
     void OnGUI()
     {
+        if (showDetectionPreview)
+        {
+            GUI.DrawTexture(
+                new Rect(0, 0, Screen.width, Screen.height),
+                Texture2D.blackTexture
+            );
+
+            if (detectionMask != null)
+            {
+                GUI.DrawTexture(
+                    new Rect(0, 0, Screen.width, Screen.height),
+                    detectionMask,
+                    ScaleMode.ScaleToFit
+                );
+            }
+
+            return;
+        }
         // Tracking information in every scena
         string panelText =
             "Tracking: " + hasTarget + "\n" +
@@ -290,6 +352,7 @@ public class HeadTracking : MonoBehaviour
 
             panelHeight = 145f;
 
+            // Display completion when all coins collected
             if (CoinPickup.CollectedCoins >= CoinPickup.TotalCoins)
             {
                 panelText += "\n\nAll coins collected!";
@@ -305,6 +368,9 @@ public class HeadTracking : MonoBehaviour
 
     void OnDestroy()
     {
+        if (detectionMask != null)
+            Destroy(detectionMask);
+
         if (webcamTexture != null && webcamTexture.isPlaying)
         {
             webcamTexture.Stop();
