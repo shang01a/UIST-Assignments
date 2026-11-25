@@ -756,18 +756,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeadTracking
   stereoCameraRig: {fileID: 161340336}
-  hueTolerance: 18
-  minSaturation: 0.45
-  minValue: 0.25
-  minimumRedPixels: 150
+  hueTolerance: 12
+  minSaturation: 0.65
+  minValue: 0.1
+  minimumRedPixels: 100
   pixelStep: 2
-  useRoi: 1
-  horizontalScale: 4
-  verticalScale: 2
-  depthScale: 2.5
+  useRoi: 0
+  showDetectionPreview: 0
+  horizontalScale: 1
+  verticalScale: 0.5
+  depthScale: 0.2
   mirrorX: 1
   depthSmoothing: 0.15
   smoothingTime: 0.12
+  limitMovement: 0
+  maxHorizontalOffset: 0.5
+  maxVerticalOffset: 0.3
+  maxDepthOffset: 0.5
 --- !u!1 &1296089734
 GameObject:
   m_ObjectHideFlags: 0
