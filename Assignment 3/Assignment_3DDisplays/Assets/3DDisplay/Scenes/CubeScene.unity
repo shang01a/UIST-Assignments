@@ -756,16 +756,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeadTracking
   stereoCameraRig: {fileID: 161340336}
-  hueTolerance: 12
-  minSaturation: 0.65
-  minValue: 0.1
+  hueTolerance: 18
+  minSaturation: 0.5
+  minValue: 0.3
   minimumRedPixels: 100
   pixelStep: 2
-  useRoi: 0
+  useRoi: 1
   showDetectionPreview: 0
-  horizontalScale: 1
-  verticalScale: 0.5
-  depthScale: 0.2
+  horizontalScale: 4
+  verticalScale: 2
+  depthScale: 1.6
   mirrorX: 1
   depthSmoothing: 0.15
   smoothingTime: 0.12
@@ -1666,7 +1666,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 512980778772230237, guid: 17e73dba4b9136049bdc25c9a263db6d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.05
+      value: -0.0375
       objectReference: {fileID: 0}
     - target: {fileID: 512980778772230237, guid: 17e73dba4b9136049bdc25c9a263db6d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1690,7 +1690,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1715930549653333873, guid: 17e73dba4b9136049bdc25c9a263db6d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.05
+      value: 0.0375
       objectReference: {fileID: 0}
     - target: {fileID: 1715930549653333873, guid: 17e73dba4b9136049bdc25c9a263db6d, type: 3}
       propertyPath: m_LocalPosition.z

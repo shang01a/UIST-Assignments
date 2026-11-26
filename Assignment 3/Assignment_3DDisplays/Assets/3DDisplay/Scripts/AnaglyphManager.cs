@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
@@ -11,6 +10,7 @@ public class AnaglyphManager : MonoBehaviour
     [Header("Anaglyph Material")]
     [SerializeField] private Material anaglyphMaterial;
 
+    // Cache shader property IDs
     private static readonly int LeftEyeTexID =
         Shader.PropertyToID("_LeftEyeTex");
 
@@ -19,6 +19,7 @@ public class AnaglyphManager : MonoBehaviour
 
     void Start()
     {
+        // Check required references
         if (leftEyeCamera == null ||
             rightEyeCamera == null ||
             anaglyphMaterial == null)
@@ -30,21 +31,22 @@ public class AnaglyphManager : MonoBehaviour
             return;
         }
 
-        // We render these cameras manually.
-        // This prevents them from rendering directly to the screen.
+        // Disable automatic rendering of both stereo cameras
         leftEyeCamera.enabled = false;
         rightEyeCamera.enabled = false;
 
-        // The output camera should not render the cubes itself.
-        // It only displays the combined stereo image.
+        // Prevent output camera from rendering scene objects
+        // Only display the combined stereo image
         Camera outputCamera = GetComponent<Camera>();
         outputCamera.cullingMask = 0;
         outputCamera.clearFlags = CameraClearFlags.SolidColor;
         outputCamera.backgroundColor = Color.black;
     }
 
+    // Postprocessing of the output camera image
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
+        // Fallback to original image if references are missing
         if (leftEyeCamera == null ||
             rightEyeCamera == null ||
             anaglyphMaterial == null)
@@ -53,12 +55,13 @@ public class AnaglyphManager : MonoBehaviour
             return;
         }
 
+        // Separate render textures for both eyes
         RenderTexture leftEyeTexture = null;
         RenderTexture rightEyeTexture = null;
 
         try
         {
-            // Allocate temporary textures matching the output.
+            // Allocate temporary textures matching the output resolution
             leftEyeTexture = RenderTexture.GetTemporary(
                 src.width, src.height, 24,
                 RenderTextureFormat.ARGB32
@@ -69,32 +72,30 @@ public class AnaglyphManager : MonoBehaviour
                 RenderTextureFormat.ARGB32
             );
 
-            // Render the left eye.
+            // Render lefteye and righteye camera image into texture
             leftEyeCamera.targetTexture = leftEyeTexture;
             leftEyeCamera.Render();
-
-            // Render the right eye.
             rightEyeCamera.targetTexture = rightEyeTexture;
             rightEyeCamera.Render();
 
-            // Supply both rendered images to the shader.
+            // Pass both rendered images to the shader
             anaglyphMaterial.SetTexture(
                 LeftEyeTexID, leftEyeTexture
             );
-
             anaglyphMaterial.SetTexture(
                 RightEyeTexID, rightEyeTexture
             );
 
-            // Combine the images into red-cyan output.
+            // Combine both images into anaglyph output
             Graphics.Blit(src, dest, anaglyphMaterial);
         }
         finally
         {
-            // Detach before releasing the temporary textures.
+            // Detach textures from stereo cameras
             leftEyeCamera.targetTexture = null;
             rightEyeCamera.targetTexture = null;
 
+            // Release temporary textures even if rendering fails
             if (leftEyeTexture != null)
                 RenderTexture.ReleaseTemporary(leftEyeTexture);
 

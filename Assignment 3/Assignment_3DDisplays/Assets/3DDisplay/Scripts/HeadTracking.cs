@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class HeadTracking : MonoBehaviour
@@ -19,8 +18,11 @@ public class HeadTracking : MonoBehaviour
     [Range(0f, 1f)]
     public float minValue = 0.25f;
 
+    // Minimum red area for valid tracking
     public int minimumRedPixels = 150;
+    // Skip pixels for faster detection
     public int pixelStep = 2;
+    // Region of interest around last detected position
     public bool useRoi = true;
 
     // Enable diagnostic 
@@ -45,6 +47,7 @@ public class HeadTracking : MonoBehaviour
     [Header("Smoothing")]
     public float smoothingTime = 0.12f;
 
+    // Limited head movement only relevant for the game scene
     [Header("Movement Limits")]
     public bool limitMovement = false;
     public float maxHorizontalOffset = 0.2f;
@@ -55,6 +58,7 @@ public class HeadTracking : MonoBehaviour
     private Vector3 targetPosition;
     private Vector3 smoothingVelocity;
 
+    // Reference position and red area for calibration
     private Vector2 referenceCenter;
     private float referenceRedPixels;
     private bool calibrated;
@@ -75,8 +79,10 @@ public class HeadTracking : MonoBehaviour
 
     void Start()
     {
+        // Requested webcam resolution and frame rate
         webcamTexture = new WebCamTexture(640, 480, 30);
 
+        // Display webcam feed if renderer is available
         Renderer webcamRenderer = GetComponent<Renderer>();
         if (webcamRenderer != null)
         {
@@ -91,16 +97,19 @@ public class HeadTracking : MonoBehaviour
 
     void Update()
     {
+        // Recalibrate with C
         if (Input.GetKeyDown(KeyCode.C))
         {
             calibrated = false;
         }
 
+        // Process new webcam frames only
         if (webcamTexture != null && webcamTexture.didUpdateThisFrame)
         {
             frameWidth = webcamTexture.width;
             frameHeight = webcamTexture.height;
 
+            // Wait for valid webcam resolution
             if (frameWidth > 16 && frameHeight > 16)
             {
                 if (pixels == null || pixels.Length != frameWidth * frameHeight)
@@ -114,6 +123,7 @@ public class HeadTracking : MonoBehaviour
             }
         }
 
+        // Smooth camera rig movement
         if (calibrated)
         {
             stereoCameraRig.localPosition = Vector3.SmoothDamp(
@@ -131,18 +141,22 @@ public class HeadTracking : MonoBehaviour
         int g = pixel.g;
         int b = pixel.b;
 
+        // Red as dominant colour
         if (r <= g || r <= b)
             return false;
 
         int min = Mathf.Min(g, b);
         int chroma = r - min;
 
+        // Filter dark pixels
         if (r < minValue * 255f)
             return false;
 
+        // Filter low saturation
         if (chroma < minSaturation * r)
             return false;
 
+        // Check hue tolerance around red
         return Mathf.Abs(g - b) * 60f <= hueTolerance * chroma;
     }
 
@@ -155,6 +169,7 @@ public class HeadTracking : MonoBehaviour
         int minY = 0;
         int maxY = frameHeight;
 
+        // Restrict search area around last detected lens position
         if (useRoi && hasTarget)
         {
             float radius = Mathf.Sqrt(lastRedCount / Mathf.PI);
@@ -185,8 +200,10 @@ public class HeadTracking : MonoBehaviour
             }
         }
 
+        // Estimate total red area from sampled pixels
         int estimatedCount = redCount * step * step;
 
+        // Target lost, full frame search on next update
         if (estimatedCount < minimumRedPixels)
         {
             hasTarget = false;
@@ -195,19 +212,23 @@ public class HeadTracking : MonoBehaviour
 
         hasTarget = true;
 
+        // Calculate centre of detected red pixels
         lastCenterX = (float)sumX / redCount;
         lastCenterY = (float)sumY / redCount;
         lastRedCount = estimatedCount;
 
+        // Normalize coordinates to [-1, 1]
         float normalizedX = lastCenterX / frameWidth * 2f - 1f;
         float normalizedY = lastCenterY / frameHeight * 2f - 1f;
 
+        // Correct mirrored coordinates
         if (webcamTexture.videoVerticallyMirrored)
             normalizedY = -normalizedY;
 
         if (mirrorX)
             normalizedX = -normalizedX;
 
+        // Use current lens position and size as reference
         if (!calibrated)
         {
             referenceCenter = new Vector2(normalizedX, normalizedY);
@@ -225,6 +246,7 @@ public class HeadTracking : MonoBehaviour
             calibrated = true;
         }
 
+        // Movement relative to calibrated position
         float relativeX = normalizedX - referenceCenter.x;
         float relativeY = normalizedY - referenceCenter.y;
 
@@ -249,12 +271,14 @@ public class HeadTracking : MonoBehaviour
 
         float z = smoothedDepth;
 
+        // Map head movement to camera rig offset
         Vector3 offset = new Vector3(
             relativeX * horizontalScale,
             relativeY * verticalScale,
             z
         );
 
+        // Limit head movement for the game scene only
         if (limitMovement)
         {
             offset.x = Mathf.Clamp(
@@ -276,6 +300,7 @@ public class HeadTracking : MonoBehaviour
             );
         }
 
+        // Target position relative to initial rig position
         targetPosition = initialRigPosition + offset;
     }
 
@@ -312,7 +337,7 @@ public class HeadTracking : MonoBehaviour
         detectionMask.SetPixels32(maskPixels);
         detectionMask.Apply(false);
     }
-    
+
     // Show only mask in diagnostic mode
     void OnGUI()
     {
@@ -366,6 +391,7 @@ public class HeadTracking : MonoBehaviour
         );
     }
 
+    // Release mask texture and stop webcam
     void OnDestroy()
     {
         if (detectionMask != null)
