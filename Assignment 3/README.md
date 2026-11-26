@@ -80,7 +80,7 @@ The following settings were used for our Cubesetup:
 | depthSmoothing | 0.15 |
 | smoothingTime | 0.12 |
 
-The following settings were used for our Application:
+The following settings were used for our ApplicationScene:
 
 | Parameter | Value |
 | --- | --- |
